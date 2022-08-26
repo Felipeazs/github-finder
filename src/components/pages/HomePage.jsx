@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { Fragment } from 'react';
+
+import UserResults from '../users/UserResults';
 
 const HomePage = () => {
-	return <h1 className='text-6xl'>HomePage</h1>;
+	return (
+		<Fragment>
+			<UserResults />
+		</Fragment>
+	);
 };
 
 export default HomePage;
