@@ -1,34 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import Spinner from '../layout/Spinner';
 
+import GithubContext from '../../context/github/GithubContext';
 import UserItem from './UserItem';
 
 const UserResults = () => {
-	const [users, setUsers] = useState([]);
-	const [isLoading, setIsLoading] = useState(false);
+	const { users, isLoading, fetchUsers } = useContext(GithubContext);
 
 	useEffect(() => {
-		fetchUsersGitHubApi();
-	}, []);
-
-	const fetchUsersGitHubApi = async () => {
-		setIsLoading(true);
-		const response = await fetch(`${process.env.REACT_APP_GITHUB_URL}/users`, {
-			headers: {
-				Authorization: `token ${process.env.REACT_APP_GITHUB_TOKEN}`,
-			},
-		});
-
-		if (!response.ok) {
-			throw new Error('Could not connect to the Github api');
-		}
-
-		const data = await response.json();
-
-		setIsLoading(false);
-		setUsers(data);
-	};
+		fetchUsers();
+	}, [fetchUsers]);
 
 	const usersList = !isLoading ? (
 		users.map((user) => (
