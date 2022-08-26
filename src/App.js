@@ -1,9 +1,16 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import NavBar from './components/layout/NavBar';
+
 function App() {
 	return (
-		<div className='bg-purple-500'>
-			<h1 className='text-xl'>Hello Tailwind</h1>
-			<button className='btn'>Click Daisyui</button>
-		</div>
+		<Router>
+			<div className='flex flex-col justify-between'>
+				<NavBar />
+
+				<main>Content</main>
+			</div>
+		</Router>
 	);
 }
 
