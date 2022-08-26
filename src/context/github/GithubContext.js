@@ -5,7 +5,8 @@ import githubReducer from './GithubReducer';
 const GithubContext = createContext({
 	users: [],
 	isLoading: Boolean,
-	fetchUsers: () => {},
+	searchUsers: () => {},
+	clearUsers: () => {},
 });
 
 const GITHUB_URL = process.env.REACT_APP_GITHUB_URL;
@@ -19,23 +20,27 @@ export const GithubProvider = ({ children }) => {
 
 	const [state, dispatch] = useReducer(githubReducer, initialState);
 
-	const fetchUsers = useCallback(async () => {
+	const searchUsers = useCallback(async (enteredUser) => {
 		dispatch({ type: 'SET_LOADING' });
 
-		const response = await fetch(`${GITHUB_URL}/users`);
+		const response = await fetch(`${GITHUB_URL}/search/users?q=${enteredUser}`);
 
 		if (!response.ok) {
 			throw new Error('Could not connect to the Github api');
 		}
 
-		const data = await response.json();
+		const { items } = await response.json();
 
-		dispatch({ type: 'GET_USERS', payload: data });
+		dispatch({ type: 'GET_USERS', payload: items });
 	}, []);
+
+	const clearUsers = () => {
+		dispatch({ type: 'CLEAR_USERS' });
+	};
 
 	return (
 		<GithubContext.Provider
-			value={{ users: state.users, isLoading: state.isLoading, fetchUsers }}
+			value={{ users: state.users, isLoading: state.isLoading, searchUsers, clearUsers }}
 		>
 			{children}
 		</GithubContext.Provider>
