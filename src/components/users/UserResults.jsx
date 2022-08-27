@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 
 import Spinner from '../layout/Spinner';
 
-import GithubContext from '../../context/github/GithubContext';
+import GithubContext from '../../context/github/github-context';
 import UserItem from './UserItem';
 
 const UserResults = () => {
