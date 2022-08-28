@@ -1,65 +1,46 @@
+import axios from 'axios';
+
 const GITHUB_URL = process.env.REACT_APP_GITHUB_URL;
-const GITHUB_TOKEN = process.env.REACT_APP_GITHUB_TOKEN; //for multiple requests
+
+const github = axios.create({
+	baseURL: GITHUB_URL,
+	//headers: {...}
+});
 
 export const searchUsers = async (enteredUser) => {
-	const response = await fetch(`${GITHUB_URL}/search/users?q=${enteredUser}`, {
-		headers: {
-			Authorization: `token ${GITHUB_TOKEN}`,
-		},
-	});
+	const response = await github.get(`/search/users?q=${enteredUser}`);
 
-	if (!response.ok) {
-		throw new Error('Could not connect to the Github api');
+	if (response.status !== 200) {
+		throw new Error('Could not connect to database');
 	}
 
-	const { items } = await response.json();
+	const { items } = response.data;
 
 	return items;
 };
 
-export const getUser = async (searchedUser) => {
-	const response = await fetch(`${GITHUB_URL}/users/${searchedUser}`, {
-		headers: {
-			Authorization: `token ${GITHUB_TOKEN}`,
-		},
-	});
-
-	if (!response.ok) {
-		throw new Error('Could not connect to the Github api');
-	}
-
-	if (response.status === 404) {
-		window.location('/notfound');
-		return;
-	}
-
-	const data = await response.json();
-
-	return data;
-};
-
-export const getRepos = async (searchedUser) => {
+export const getUserAndRepos = async (searchedUser) => {
 	const params = new URLSearchParams({
 		sort: 'created',
 		per_page: 10,
 	});
 
-	const response = await fetch(`${GITHUB_URL}/users/${searchedUser}/repos?${params}`, {
-		headers: {
-			Authorization: `token ${GITHUB_TOKEN}`,
-		},
-	});
+	const [user, repos] = await Promise.all([
+		github.get(`/users/${searchedUser}`),
+		github.get(`/users/${searchedUser}/repos?${params}`),
+	]);
 
-	if (!response.ok) {
+	if (user.status !== 200 || repos.status !== 200) {
 		throw new Error('Could not connect to the Github api');
 	}
 
-	if (response.status === 404) {
+	if (user.status === 404 || repos.status === 404) {
 		window.location('/notfound');
 		return;
 	}
 
-	const data = await response.json();
+	const userData = user.data;
+	const reposData = repos.data;
 
-	return data;
+	return { userData, reposData };
 };

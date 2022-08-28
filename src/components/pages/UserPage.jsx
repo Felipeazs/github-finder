@@ -5,7 +5,7 @@ import { FaCodepen, FaStore, FaUserFriends, FaUsers } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Spinner from '../layout/Spinner';
 
-import { getUser, getRepos } from '../../context/github/github-actions';
+import { getUserAndRepos } from '../../context/github/github-actions';
 import GithubContext from '../../context/github/github-context';
 import RepoList from '../repos/RepoList';
 
@@ -13,21 +13,15 @@ const UserPage = () => {
 	const { user, repos, isLoading, dispatch } = useContext(GithubContext);
 	const { username } = useParams();
 
-	const getUserGithub = useCallback(async () => {
-		const githubUser = await getUser(username);
-		dispatch({ type: 'GET_USER', payload: githubUser });
-	}, [dispatch, username]);
-
-	const getUserRepos = useCallback(async () => {
-		const reposUser = await getRepos(username);
-		dispatch({ type: 'GET_USER_REPOS', payload: reposUser });
+	const getUserGithubData = useCallback(async () => {
+		const githubUser = await getUserAndRepos(username);
+		dispatch({ type: 'GET_USER_AND_REPOS', payload: githubUser });
 	}, [dispatch, username]);
 
 	useEffect(() => {
 		dispatch({ type: 'SET_LOADING' });
-		getUserGithub();
-		getUserRepos();
-	}, [dispatch, getUserGithub, getUserRepos]); // no agregar dependencias porque se requiere correr sólo una vez
+		getUserGithubData();
+	}, [dispatch, getUserGithubData]); // no agregar dependencias porque se requiere correr sólo una vez
 
 	const {
 		name,
