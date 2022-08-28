@@ -1,22 +1,33 @@
-import React, { Fragment, useContext, useEffect } from 'react';
+import React, { Fragment, useContext, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { FaCodepen, FaStore, FaUserFriends, FaUsers } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Spinner from '../layout/Spinner';
 
+import { getUser, getRepos } from '../../context/github/github-actions';
 import GithubContext from '../../context/github/github-context';
 import RepoList from '../repos/RepoList';
 
 const UserPage = () => {
-	const { user, repos, getUser, getRepos, isLoading } = useContext(GithubContext);
+	const { user, repos, isLoading, dispatch } = useContext(GithubContext);
 	const { username } = useParams();
 
+	const getUserGithub = useCallback(async () => {
+		const githubUser = await getUser(username);
+		dispatch({ type: 'GET_USER', payload: githubUser });
+	}, [dispatch, username]);
+
+	const getUserRepos = useCallback(async () => {
+		const reposUser = await getRepos(username);
+		dispatch({ type: 'GET_USER_REPOS', payload: reposUser });
+	}, [dispatch, username]);
+
 	useEffect(() => {
-		getUser(username);
-		getRepos(username);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // no agregar dependencias porque se requiere correr sólo una vez
+		dispatch({ type: 'SET_LOADING' });
+		getUserGithub();
+		getUserRepos();
+	}, [dispatch, getUserGithub, getUserRepos]); // no agregar dependencias porque se requiere correr sólo una vez
 
 	const {
 		name,
